@@ -1,5 +1,9 @@
 <template>
-  <div class="home-container" style="background-color: #223771">
+  <div
+    class="home-container"
+    style="background-color: #223771"
+    :style="{ width: adminContentWidth }"
+  >
     <menuTopUser />
     <div class="ContentHome">
       <NavbarUser />
@@ -13,16 +17,24 @@
         <div class="feature-container">
           <h3 class="title">Chức năng</h3>
           <div class="feature-list">
-            <div
-              v-for="(feature, index) in features"
-              :key="index"
-              class="feature-item"
-            >
+            <router-link to="/route1" class="feature-item">
               <div class="icon-wrapper">
-                <img :src="feature.icon" alt="icon" />
+                <i class="fas fa-home"></i>
               </div>
-              <span>{{ feature.name }}</span>
-            </div>
+              <span>hồ sơ cá nhân</span>
+            </router-link>
+            <router-link to="/route2" class="feature-item">
+              <div class="icon-wrapper">
+                <i class="fas fa-user"></i>
+              </div>
+              <span>ngân hàng đề</span>
+            </router-link>
+            <router-link to="/route3" class="feature-item">
+              <div class="icon-wrapper">
+                <i class="fas fa-cog"></i>
+              </div>
+              <span>lịch giảng dạy</span>
+            </router-link>
           </div>
         </div>
         <div class="news-activities">
@@ -104,15 +116,6 @@ export default {
       comments: [],
       baseURL: "https://localhost:7139", // Add baseURL
       loading: false,
-      features: [
-        { name: "Xin xác nhận", icon: "icon1.png" },
-        { name: "Đăng ký học", icon: "icon2.png" },
-        { name: "Thư viện", icon: "icon3.png" },
-        { name: "Thông tin chỗ ở", icon: "icon4.png" },
-        { name: "Tài chính", icon: "icon5.png" },
-        { name: "Tự nhập hồ sơ", icon: "icon6.png" },
-        { name: "Lịch học", icon: "icon7.png" },
-      ],
       newsItems: [
         {
           title: "Thông báo lịch họp Khoa",
@@ -199,7 +202,7 @@ export default {
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
-  width: 80vw;
+  width: 100vw;
   height: 85vh;
   //   width: 100%;
   background: linear-gradient(to right, var(--light-gray), var(--light-blue));
@@ -767,6 +770,67 @@ export default {
       &:hover {
         transform: scale(1.1);
       }
+    }
+  }
+}
+.feature-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin: 0 30px;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .title {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #2d3748;
+  }
+
+  .feature-list {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2d3748;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f7fafc;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background: #ffffff;
+    }
+
+    .icon-wrapper {
+      background: linear-gradient(135deg, #67b26f, #4ca2cd);
+      color: #fff;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      transition: background 0.3s ease;
     }
   }
 }

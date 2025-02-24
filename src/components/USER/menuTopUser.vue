@@ -11,7 +11,7 @@
         <i class="fas fa-search search-icon"></i>
       </div>
       <div class="user-info">
-        <span class="username">{{ $store.getters.getUserName }}</span>
+        <span class="username">{{ userName }}</span>
         <div class="dropdown">
           <i class="fas fa-user user-icon" @click="handerShowSetting"></i>
           <div
@@ -31,10 +31,12 @@
               <i class="fas fa-sign-out-alt"></i>
               Đăng xuất
             </div>
-            <div class="dropdown-item" @click="showPersonalInfo">
-              <i class="fas fa-id-card"></i>
-              Thông tin cá nhân
-            </div>
+            <router-link to="/infoUser">
+              <div class="dropdown-item" @click="showPersonalInfo">
+                <i class="fas fa-id-card"></i>
+                Thông tin cá nhân
+              </div>
+            </router-link>
           </div>
         </div>
       </div>
@@ -49,8 +51,12 @@ export default {
     return {
       isDropdownOpen: false,
       searchQuery: "",
-      username: "Người dùng", // Replace with actual username from your auth system
     };
+  },
+  computed: {
+    userName() {
+      return this.$store.getters.getUserName;
+    },
   },
   methods: {
     handleSearch() {
@@ -60,8 +66,13 @@ export default {
     handerShowSetting() {
       this.isDropdownOpen = !this.isDropdownOpen;
     },
-    logout() {
-      this.$store.dispatch("logout");
+    async logout() {
+      try {
+        await this.$store.dispatch("logout");
+        // Chuyển hướng về trang login sau khi đăng xuất thành công
+      } catch (error) {
+        console.error("Lỗi đăng xuất:", error);
+      }
     },
   },
 };

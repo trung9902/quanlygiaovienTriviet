@@ -8,26 +8,40 @@
         <div class="TopicBank-Header">
           <div class="filters">
             <div class="topicBank-select">
-              <select class="filter">
-                <option value="Vật lí">Vật lí</option>
-                <option value="Hóa học">Hóa học</option>
-                <option value="Sinh học">Sinh học</option>
-                <option value="Toán học">Toán học</option>
+              <select class="filter" v-model="selectedSubject">
+                <option value="">---chọn môn học---</option>
+                <option
+                  v-for="subject in allSubject"
+                  :key="subject.id"
+                  :value="subject.id"
+                >
+                  {{ subject.name }}
+                </option>
               </select>
-              <select class="filter">
-                <option value="Lớp 12">Lớp 12</option>
-                <option value="Lớp 11">Lớp 11</option>
-                <option value="Lớp 10">Lớp 10</option>
+              <select class="filter" v-model="selectedClass">
+                <option value="">---chọn lớp---</option>
+                <option
+                  v-for="classs in classes"
+                  :key="classs.id"
+                  :value="classs.name"
+                >
+                  {{ classs.name }}
+                </option>
               </select>
             </div>
-            <button class="btn btn-create" @click="openModal">Thêm đề</button>
+            <div class="topic-btn_box">
+              <button class="btn btn-create" @click="openModal">Thêm đề</button>
+              <router-link to="/topicBank">
+                <button class="btn btn-create">Quay lại</button>
+              </router-link>
+            </div>
             <!-- <router-link to="/createExam">
               <button class="my-topic-bank-button">Ngân hàng đề của tôi</button>
             </router-link> -->
           </div>
         </div>
         <div class="TopicBank-Container">
-          <div v-for="exam in allExamesUser" :key="exam.id" class="card">
+          <div v-for="exam in filteredExams" :key="exam.id" class="card">
             <!-- <div class="delete-button" v-if="isCurrentUserExam(exam)">
               <i
                 class="fas fa-trash-alt"
@@ -82,6 +96,13 @@ export default {
       searchQuery: "",
       showModalCreate: false,
       baseURL: "https://localhost:7139", // Thêm baseURL vào data
+      selectedClass: "", // Thêm vào đây
+      selectedSubject: "", // Thêm vào đây
+      classes: [
+        { id: 1, name: "Lớp 12" },
+        { id: 2, name: "Lớp 11" },
+        { id: 3, name: "Lớp 10" },
+      ],
     };
   },
   components: {
@@ -90,14 +111,43 @@ export default {
     ModalCreateExam,
   },
   computed: {
-    ...mapGetters(["allExamesUser"]),
+    ...mapGetters(["allExamesUser", "allSubject"]),
     debugExams() {
       console.log("Component received exams:", this.allExamesUser);
       return this.allExamesUser;
     },
+    filteredExams() {
+      let filtered = [...this.allExamesUser];
+      console.log("Original exams:", this.allExamesUser);
+      // Search filter
+      if (this.searchQuery.trim()) {
+        const searchLower = this.searchQuery.toLowerCase().trim();
+        filtered = filtered.filter((exam) =>
+          exam.title.toLowerCase().includes(searchLower)
+        );
+      }
+      if (this.selectedClass) {
+        filtered = filtered.filter((exam) => {
+          const match = exam.classsub === this.selectedClass;
+          console.log(`Exam ${exam.id} class match:`, match);
+          return match;
+        });
+      }
+
+      if (this.selectedSubject) {
+        filtered = filtered.filter((exam) => {
+          const match = exam.subject === parseInt(this.selectedSubject);
+          console.log(`Exam ${exam.id} subject match:`, match);
+          return match;
+        });
+      }
+
+      console.log("Filtered results:", filtered);
+      return filtered;
+    },
   },
   methods: {
-    ...mapActions(["getExam", "downloadFile", "deleteExame"]),
+    ...mapActions(["getExam", "downloadFile", "deleteExame", "getSubject"]),
     formatDate(date) {
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Date(date).toLocaleDateString("vi-VN", options);
@@ -140,10 +190,20 @@ export default {
   },
   mounted() {
     this.getExam();
+    this.getSubject();
   },
 };
 </script>
+
 <style scoped lang="scss">
+.topic-btn_box {
+  display: flex;
+  gap: 10px;
+}
+.header-actions-box {
+  display: flex;
+  gap: 10px;
+}
 .Topic-Bank {
   height: 100%;
 }
@@ -180,7 +240,7 @@ export default {
 }
 .filters {
   display: flex;
-  gap: 50vw;
+  gap: 35vw;
 }
 select.filter {
   padding: 10px;
@@ -272,7 +332,7 @@ table {
 .content {
   display: flex;
   flex-direction: column;
-  width: 80vw;
+  width: 100vw;
   height: 85vh;
   background: linear-gradient(to right, var(--light-gray), var(--light-blue));
   overflow-y: scroll;

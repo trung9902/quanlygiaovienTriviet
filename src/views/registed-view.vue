@@ -1,5 +1,6 @@
 <template>
   <div class="register-page">
+    <loading-spinner v-if="isLoading" />
     <!-- Left Section: Register Form -->
     <div class="register-page__form-container">
       <div class="register-page__logo">V</div>
@@ -13,7 +14,7 @@
           <input
             id="username"
             type="text"
-            v-model="username"
+            v-model="form.username"
             placeholder="UserName"
             required
           />
@@ -25,7 +26,7 @@
           <input
             id="hoTen"
             type="text"
-            v-model="hoTen"
+            v-model="form.hoTen"
             placeholder="Full Name"
             required
           />
@@ -37,7 +38,7 @@
           <input
             id="email"
             type="email"
-            v-model="email"
+            v-model="form.email"
             placeholder="Email"
             required
           />
@@ -49,7 +50,7 @@
           <input
             id="sdt"
             type="tel"
-            v-model="sdt"
+            v-model="form.sdt"
             placeholder="Phone Number"
             required
           />
@@ -62,7 +63,7 @@
             <input
               id="password"
               :type="showPassword ? 'text' : 'password'"
-              v-model="password"
+              v-model="form.password"
               placeholder="Password"
               required
             />
@@ -71,6 +72,7 @@
             </span>
           </div>
         </div>
+
         <!-- subject Input -->
         <div class="input-group subject-group">
           <label>Subjects</label>
@@ -92,6 +94,8 @@
         Already have an account? <router-link to="/login">Login</router-link>
       </p>
     </div>
+
+    <!-- Subject Modal -->
     <div
       class="subject-modal-overlay"
       v-if="showSubjectModal"
@@ -99,32 +103,23 @@
     >
       <div class="subject-modal-container">
         <h2>Chọn môn học</h2>
-        <div
-          class="checkbox-container"
-          style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px"
-        >
-          <div
-            v-for="sub in allSubject"
-            :key="sub.id"
-            style="
-              display: flex;
-              align-items: center;
-              background: #222;
-              padding: 8px;
-              border-radius: 5px;
-              border: 1px solid #333;
-            "
-          >
-            <input
-              type="checkbox"
-              :id="'subject-' + sub.id"
-              :value="sub.id"
-              v-model="subject"
-              style="margin-right: 8px"
-            />
-            <label :for="'subject-' + sub.id" style="cursor: pointer">
-              {{ sub.name }}
-            </label>
+        <div class="checkbox-container">
+          <div class="form-group">
+            <label>Danh sách môn học</label>
+            <div class="checkbox-group">
+              <label
+                v-for="subject in allSubject"
+                :key="subject.id"
+                class="checkbox-label"
+              >
+                <input
+                  type="checkbox"
+                  :value="subject.name"
+                  v-model="form.subject"
+                />
+                {{ subject.name }}
+              </label>
+            </div>
           </div>
         </div>
 
@@ -145,52 +140,60 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
+  components: {
+    LoadingSpinner,
+  },
   data() {
     return {
-      username: "",
-      password: "",
-      hoTen: "",
-      email: "",
-      sdt: "",
-      subject: [],
+      form: {
+        username: "",
+        password: "",
+        hoTen: "",
+        email: "",
+        sdt: "",
+        role: 1,
+        subject: [],
+        isLoading: false,
+      },
       role: 1, // Default role is user
       showPassword: false,
       showSubjectModal: false,
     };
   },
   methods: {
+    ...mapActions(["register", "getSubject"]),
     togglePassword() {
       this.showPassword = !this.showPassword;
     },
     async handleRegister() {
-      const { username, password, hoTen, email, sdt, role, subject } = this;
-
-      if (!username || !password || !hoTen || !email || !sdt || !subject) {
-        console.error("Please fill in all required fields.");
+      if (
+        !this.form.username ||
+        !this.form.password ||
+        !this.form.hoTen ||
+        !this.form.email ||
+        !this.form.sdt ||
+        this.form.subject.length === 0
+      ) {
+        alert("Vui lòng điền đầy đủ thông tin.");
         return;
       }
       try {
-        const result = await this.$store.dispatch("register", {
-          username,
-          password,
-          hoTen,
-          email,
-          sdt,
-          role,
-          subject,
-        });
+        const result = await this.$store.dispatch("register", { ...this.form });
         if (result.success) {
-          alert(result.message); // Hiển thị thông báo đăng nhập thành công
+          alert(result.message);
+          this.$router.push("/");
         }
       } catch (error) {
         alert("Đăng ký thất bại");
+      } finally {
+        this.isLoading = false;
       }
     },
     confirmSubjectSelection() {
-      // Có thể xử lý subject tại đây nếu cần
       this.showSubjectModal = false;
     },
   },
@@ -198,7 +201,7 @@ export default {
     ...mapGetters(["allSubject"]),
   },
   mounted() {
-    this.$store.dispatch("getSubject"); // Gọi action getUsers để lấy dữ liệu
+    this.getSubject();
   },
 };
 </script>
@@ -360,5 +363,13 @@ export default {
 .btn-secondary {
   background-color: #f0f0f0;
   color: #000;
+}
+.register-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.register-btn i.fa-spinner {
+  margin-right: 8px;
 }
 </style>

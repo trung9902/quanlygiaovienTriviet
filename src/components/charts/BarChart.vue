@@ -1,7 +1,7 @@
 <template>
   <div class="charts-grid">
     <div class="chart-container">
-      <Bar :data="barChartData" :options="barChartOptions" />
+      <Bar :data="computedBarChartData" :options="barChartOptions" />
     </div>
     <div class="chart-container">
       <Pie :data="pieChart1Data" :options="pieChartOptions" />
@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import { toRaw } from "vue";
+import { mapGetters, mapActions } from "vuex";
 import { Bar, Pie } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -41,20 +43,7 @@ export default {
   components: { Bar, Pie },
   data() {
     return {
-      barChartData: {
-        labels: ["Toán", "Lý", "Hóa", "Sinh", "Văn", "Anh", "Sử", "Địa"],
-        datasets: [
-          {
-            label: "Số lượng đề thi",
-            data: [40, 20, 12, 8, 15, 25, 10, 5],
-            backgroundColor: [
-              "rgba(255, 99, 132, 0.8)" /* ... các màu khác ... */,
-            ],
-            borderColor: ["rgba(255, 99, 132, 1)" /* ... các màu khác ... */],
-            borderWidth: 1,
-          },
-        ],
-      },
+      // Các biểu đồ không liên quan đến dữ liệu động có thể để trong data
       pieChart1Data: {
         labels: ["Đã duyệt", "Chưa duyệt"],
         datasets: [
@@ -74,6 +63,7 @@ export default {
             data: [60, 40],
             backgroundColor: [
               "rgba(54, 162, 235, 0.8)",
+
               "rgba(255, 206, 86, 0.8)",
             ],
           },
@@ -102,6 +92,79 @@ export default {
         },
       },
     };
+  },
+  computed: {
+    ...mapGetters(["allSubject", "allExames"]),
+    // Tạo ra mảng các đối tượng subject kèm theo số exam count
+    nonZeroSubjects() {
+      const subjects = toRaw(this.allSubject) || [];
+      const exams = toRaw(this.allExames) || [];
+      return subjects
+        .map((subject) => {
+          const count = exams.filter(
+            (exam) => Number(exam.subject) === Number(subject.id)
+          ).length;
+          return { ...subject, count };
+        })
+        .filter((subject) => subject.count > 0); // chỉ lấy những môn có count > 0
+    },
+    examLabels() {
+      // Lấy tên của những môn không có số đếm bằng 0
+      return this.nonZeroSubjects.map((subject) => subject.name);
+    },
+    examCounts() {
+      // Lấy số đếm tương ứng
+      return this.nonZeroSubjects.map((subject) => subject.count);
+    },
+    computedBarChartData() {
+      return {
+        labels: this.examLabels,
+        datasets: [
+          {
+            label: "Số lượng đề thi",
+            data: this.examCounts,
+            backgroundColor: [
+              "rgba(255, 99, 132, 0.8)",
+              "rgba(54, 162, 235, 0.8)",
+              "rgba(255, 206, 86, 0.8)",
+              "rgba(75, 192, 192, 0.8)",
+              "rgba(153, 102, 255, 0.8)",
+              "rgba(255, 159, 64, 0.8)",
+              "rgba(199, 199, 199, 0.8)",
+              "rgba(83, 102, 255, 0.8)",
+              "rgba(40, 159, 64, 0.8)",
+              "rgba(210, 199, 199, 0.8)",
+            ],
+            borderColor: [
+              "rgba(255, 99, 132, 1)",
+              "rgba(54, 162, 235, 1)",
+              "rgba(255, 206, 86, 1)",
+              "rgba(75, 192, 192, 1)",
+              "rgba(153, 102, 255, 1)",
+              "rgba(255, 159, 64, 1)",
+              "rgba(199, 199, 199, 1)",
+              "rgba(83, 102, 255, 1)",
+              "rgba(40, 159, 64, 1)",
+              "rgba(210, 199, 199, 1)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      };
+    },
+  },
+  methods: {
+    ...mapActions(["getSubject", "getExam"]),
+  },
+  mounted() {
+    this.getSubject();
+    this.getExam();
+    console.log("sssss", this.examCounts);
+  },
+  watch: {
+    allExames() {
+      console.log("Exam Counts:", this.examCounts);
+    },
   },
 };
 </script>

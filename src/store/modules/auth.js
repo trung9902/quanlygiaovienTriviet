@@ -3,6 +3,7 @@ import axios from "@/axios";
 import { jwtDecode } from "jwt-decode";
 export default {
   state: {
+    navbarCollapsed: false,
     token: localStorage.getItem("token") || "",
     isLoggedIn: !!localStorage.getItem("token"),
     otpSent: false,
@@ -21,19 +22,29 @@ export default {
     },
   },
   mutations: {
-    setToken: (state, token) => {
-      state.token = token;
-      localStorage.setItem("token", token);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; // Gán token vào header của Axios
-      const decoded = jwtDecode(token);
-      console.log("Decoded token:", decoded); // Kiểm tra nội dung token
-      state.user = decoded;
-      const meo = parseInt(state.user?.UserId, 10);
-      console.log("meo:", meo);
-
-      console.log("State user sau khi cập nhật:", state.user.name); // Kiểm tra state user
+    setNavbarCollapsed(state, collapsed) {
+      state.navbarCollapsed = collapsed;
     },
+    setToken: (state, token) => {
+      if (token) {
+        state.token = token;
+        localStorage.setItem("token", token);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; // Gán token vào header của Axios
+        const decoded = jwtDecode(token);
+        console.log("Decoded token:", decoded); // Kiểm tra nội dung token
+        state.user = decoded;
+        const meo = parseInt(state.user?.UserId, 10);
+        console.log("meo:", meo);
 
+        console.log("State user sau khi cập nhật:", state.user.name); // Kiểm tra state user
+      } else {
+        state.token = null;
+        localStorage.removeItem("token");
+      }
+    },
+    setUser(state, user) {
+      state.user = user;
+    },
     setLoginStatus: (state, status) => {
       state.isLoggedIn = status;
     },
@@ -72,46 +83,13 @@ export default {
       }
     },
 
-    async register(
-      { commit },
-      {
-        username,
-        password,
-        hoTen,
-        email,
-        sdt,
-        role = "Teacher",
-        subject,
-        router,
-      }
-    ) {
+    async register({ commit }, forndata) {
       try {
-        if (!username || !password || !hoTen || !email || !sdt || !subject) {
-          throw new Error("Vui lòng điền đầy đủ thông tin.");
-        }
-
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        if (!emailPattern.test(email)) {
-          throw new Error("Định dạng email không hợp lệ.");
-        }
-
-        const response = await axios.post("/api/register", {
-          username,
-          password,
-          hoTen,
-          email,
-          sdt,
-          role,
-          subject,
-        });
+        const response = await axios.post("/api/register", forndata);
 
         commit("setLoginStatus", true);
         commit("setToken", response.data.token);
         localStorage.setItem("token", response.data.token);
-
-        if (role === "Teacher") {
-          router.push({ name: "home" });
-        }
 
         return { success: true, message: "Đăng ký thành công!" };
       } catch (error) {
@@ -124,11 +102,17 @@ export default {
     },
 
     logout({ commit }) {
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"]; // Xóa token khỏi header
-      commit("setToken", "");
-      commit("setLoginStatus", false);
-      window.location.href = "/login";
+      try {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        delete axios.defaults.headers.common["Authorization"]; // Xóa token khỏi header
+        commit("setToken", "");
+        commit("setLoginStatus", false);
+        window.location.href = "/";
+      } catch (error) {
+        console.error("Lỗi khi đăng xuất:", error);
+        throw error;
+      }
     },
     async sendOtp({ commit }, email) {
       try {

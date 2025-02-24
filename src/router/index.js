@@ -13,6 +13,8 @@ import topicBank from "@/views/users/topicBank.vue";
 import topicBankAdmin from "@/views/Admin/topic-BankAdmin.vue";
 import topicBankUser from "@/views/users/topicBankUser.vue";
 import automaticAssignment from "@/views/Admin/automaticAssignment.vue";
+import infoUser from "@/views/users/infoUser.vue";
+import lichGiangDay from "@/views/users/lichGiangDayUser.vue";
 const routes = [
   {
     path: "/",
@@ -81,9 +83,19 @@ const routes = [
     component: topicBank,
   },
   {
+    path: "/infoUser",
+    name: "infoUser",
+    component: infoUser,
+  },
+  {
     path: "/topicBankUser",
     name: "topicBankUser",
     component: topicBankUser,
+  },
+  {
+    path: "/lichGiangDay",
+    name: "lichGiangDay",
+    component: lichGiangDay,
   },
 ];
 

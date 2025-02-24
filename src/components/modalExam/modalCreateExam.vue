@@ -46,7 +46,7 @@
           >
             <option value="">Select a subject</option>
             <option
-              v-for="subject in subjects"
+              v-for="subject in toRawSubjects"
               :key="subject.id"
               :value="subject.id"
             >
@@ -86,9 +86,18 @@
   </div>
 </template>
 <script>
-import { mapActions } from "vuex";
+import { toRaw } from "vue";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
+  computed: {
+    ...mapGetters(["allSubject"]),
+    toRawSubjects() {
+      console.log(toRaw(this.allSubject));
+
+      return toRaw(this.allSubject) || [];
+    },
+  },
   name: "ModalCreateExam",
   data() {
     return {
@@ -101,12 +110,6 @@ export default {
       CreatedBy: "",
       createdByName: "",
       selectedSubject: "",
-      subjects: [
-        { id: 1, name: "Vật lí" },
-        { id: 2, name: "Hóa học" },
-        { id: 3, name: "Sinh học" },
-        { id: 4, name: "Toán học" },
-      ],
       classes: [
         { id: 1, name: "Lớp 12" },
         { id: 2, name: "Lớp 11" },
@@ -115,7 +118,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["addExam"]),
+    ...mapActions(["addExam", "getSubject"]),
     updateClassSub(event) {
       const selectedClassId = event.target.value;
       const selectedClass = this.classes.find(
@@ -129,14 +132,10 @@ export default {
     },
     updateSubjectSub(event) {
       const selectedSubjectId = event.target.value;
-      const selectedSubject = this.subjects.find(
+      const selectedSubject = this.toRawSubjects.find(
         (subject) => subject.id === parseInt(selectedSubjectId)
       );
-      if (selectedSubject) {
-        this.selectedSubjectsub = selectedSubject.name;
-      } else {
-        this.selectedSubjectsub = "";
-      }
+      this.selectedSubjectsub = selectedSubject ? selectedSubject.name : "";
     },
     closeModal() {
       this.isOpen = false;
@@ -191,6 +190,9 @@ export default {
         alert("Có lỗi xảy ra khi tạo đề thi.");
       }
     },
+  },
+  mounted() {
+    this.getSubject();
   },
 };
 </script>

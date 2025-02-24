@@ -18,6 +18,12 @@
         <span class="menu-title" v-if="!isCollapsed">QUẢN LÝ</span>
         <ul>
           <li>
+            <router-link to="/admin" class="nav-link">
+              <i class="fas fa-home"></i>
+              <span v-if="!isCollapsed">Trang chủ</span>
+            </router-link>
+          </li>
+          <li>
             <router-link to="/admin/AddUser" class="nav-link">
               <i class="fas fa-users"></i>
               <span v-if="!isCollapsed">Quản lý tài khoản</span>
@@ -101,14 +107,15 @@ export default {
   methods: {
     toggleNav() {
       this.isCollapsed = !this.isCollapsed;
+      this.$store.commit("auth/setNavbarCollapsed", this.isCollapsed);
     },
     toggleMenu() {
       this.isExpanded = !this.isExpanded;
     },
     handleLogout() {
       // Xử lý đăng xuất ở đây
-      this.$store.dispatch("auth/logout");
-      this.$router.push("/login");
+
+      this.$store.dispatch("logout");
     },
   },
 };

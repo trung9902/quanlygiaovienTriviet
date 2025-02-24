@@ -18,7 +18,7 @@
                   <option
                     v-for="classs in classes"
                     :key="classs.id"
-                    :value="classs.id"
+                    :value="classs.name"
                   >
                     {{ classs.name }}
                   </option>
@@ -32,7 +32,7 @@
                 >
                   <option value="">Chọn môn học</option>
                   <option
-                    v-for="subject in subjects"
+                    v-for="subject in allSubject"
                     :key="subject.id"
                     :value="subject.id"
                   >
@@ -103,12 +103,12 @@ export default {
       baseURL: "https://localhost:7139",
       selectedClass: "", // Thêm vào đây
       selectedSubject: "", // Thêm vào đây
-      subjects: [
-        { id: 1, name: "Vật lí" },
-        { id: 2, name: "Hóa học" },
-        { id: 3, name: "Sinh học" },
-        { id: 4, name: "Toán học" },
-      ],
+      // subjects: [
+      //   { id: 1, name: "Vật lí" },
+      //   { id: 2, name: "Hóa học" },
+      //   { id: 3, name: "Sinh học" },
+      //   { id: 4, name: "Toán học" },
+      // ],
       classes: [
         { id: 1, name: "Lớp 12" },
         { id: 2, name: "Lớp 11" },
@@ -121,15 +121,14 @@ export default {
     menuTopUser,
   },
   computed: {
-    ...mapGetters(["allExames"]),
+    ...mapGetters(["allExames", "allClass", "allSubject"]),
     filteredExams() {
       let filtered = [...this.allExames];
       console.log("Original exams:", this.allExames);
 
       // Log để debug
-      console.log("Original exams:", this.allExames);
-      console.log("Selected class:", this.selectedClass);
-      console.log("Selected subject:", this.selectedSubject);
+      console.log("Original exams:", this.allClass);
+      console.log("Selected class:", this.allSubject);
       // Search filter
       if (this.searchQuery.trim()) {
         const searchLower = this.searchQuery.toLowerCase().trim();
@@ -139,7 +138,7 @@ export default {
       }
       if (this.selectedClass) {
         filtered = filtered.filter((exam) => {
-          const match = exam.classs === parseInt(this.selectedClass);
+          const match = exam.classsub === this.selectedClass;
           console.log(`Exam ${exam.id} class match:`, match);
           return match;
         });
@@ -158,7 +157,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["getExam", "downloadFile"]),
+    ...mapActions(["getExam", "downloadFile", "getClass", "getSubject"]),
     updateClassSub() {
       console.log("Selected class:", this.selectedClass);
       // Có thể thêm logic xử lý khác ở đây nếu cần
@@ -192,6 +191,8 @@ export default {
   },
   mounted() {
     this.getExam();
+    this.getClass();
+    this.getSubject();
   },
 };
 </script>
@@ -199,6 +200,11 @@ export default {
 <style scoped lang="scss">
 .Topic-Bank {
   height: 100%;
+  width: 100vw;
+}
+.header-actions-box {
+  display: flex;
+  gap: 10px;
 }
 .container {
   display: flex;
@@ -228,6 +234,7 @@ export default {
   align-items: center;
 }
 .content {
+  width: 100vw;
   margin-top: 20px;
   padding: 20px 20px;
 }
@@ -266,7 +273,7 @@ table {
   background-color: #e3f2fd;
   border-radius: 10px;
   padding: 15px;
-  width: 23vw;
+  width: 25vw;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 
   .card-header {
@@ -317,7 +324,6 @@ table {
 .content {
   display: flex;
   flex-direction: column;
-  width: 80vw;
   height: 85vh;
   background: linear-gradient(to right, var(--light-gray), var(--light-blue));
   overflow-y: scroll;

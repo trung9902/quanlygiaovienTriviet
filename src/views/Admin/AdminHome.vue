@@ -1,21 +1,21 @@
 <template>
   <div class="admin">
     <Navbar />
-    <div class="admin-content">
+    <div class="admin-content" :style="{ width: adminContentWidth }">
       <h1>Trang Quản Trị</h1>
 
       <div class="dashboard-stats">
         <div class="stat-card">
           <h3>Tổng số đề thi</h3>
-          <p class="stat-number">150</p>
+          <p class="stat-number">{{ examTotal }}</p>
         </div>
         <div class="stat-card">
           <h3>Tổng số giáo viên</h3>
-          <p class="stat-number">45</p>
+          <p class="stat-number">{{ teacherTotal }}</p>
         </div>
         <div class="stat-card">
-          <h3>Đề thi mới tháng này</h3>
-          <p class="stat-number">28</p>
+          <h3>Tổng số tin tức</h3>
+          <p class="stat-number">{{ newsTotal }}</p>
         </div>
       </div>
 
@@ -39,6 +39,33 @@ export default {
     Navbar,
     BarChart,
   },
+  computed: {
+    isNavbarCollapsed() {
+      return this.$store.state.auth.navbarCollapsed;
+    },
+    examTotal() {
+      const exams = this.$store.getters["allExames"];
+      return Array.isArray(exams) ? exams.length : 0;
+    },
+    teacherTotal() {
+      const teachers = this.$store.getters["allTeachers"];
+      return Array.isArray(teachers) ? teachers.length : 0;
+    },
+    newsTotal() {
+      const news = this.$store.getters["allNews"];
+      return Array.isArray(news) ? news.length : 0;
+    },
+    adminContentWidth() {
+      return this.isNavbarCollapsed
+        ? "calc(100vw - 70px)"
+        : "calc(100vw - 24vw)";
+    },
+  },
+  mounted() {
+    this.$store.dispatch("getExam");
+    this.$store.dispatch("getTeacher");
+    this.$store.dispatch("getNews");
+  },
 };
 </script>
 
@@ -50,9 +77,9 @@ export default {
 }
 
 .admin-content {
-  flex: 1;
   padding: 20px;
-  width: 96vw;
+  transition: width 0.3s ease;
+  overflow: auto;
 
   h1 {
     margin-bottom: 30px;

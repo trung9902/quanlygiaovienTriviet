@@ -5,6 +5,7 @@ import users from "./modules/users";
 import general from "./modules/general";
 import News from "./modules/News";
 import topic from "./modules/topic";
+import createPersistedState from "vuex-persistedstate";
 
 export default createStore({
   modules: {
@@ -14,4 +15,5 @@ export default createStore({
     News,
     topic,
   },
+  plugins: [createPersistedState()],
 });
