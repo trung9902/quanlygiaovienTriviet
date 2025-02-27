@@ -4,31 +4,31 @@
     <div class="teachingSchedule">
       <navbarUser />
       <div class="schedule-container">
-        <div class="day-schedule" v-for="(day, index) in schedule" :key="index">
-          <h3 class="day-title">{{ day.name }}</h3>
+        <div v-for="thu in daysOfWeek" :key="thu.value" class="day-schedule">
+          <h3 class="day-title">{{ thu.label }}</h3>
           <div class="sessions">
             <div class="session morning">
               <h4>Buổi sáng</h4>
               <div
                 class="lesson"
-                v-for="lesson in day.morning"
+                v-for="lesson in filterByDayAndSession(thu.value, 'Buổi sáng')"
                 :key="lesson.id"
               >
                 <span class="lesson-time">Tiết {{ lesson.period }}</span>
-                <span class="lesson-name">{{ lesson.subject }}</span>
-                <span class="lesson-teacher">{{ lesson.RoomNumber }}</span>
+                <span class="lesson-name">{{ lesson.subjectName }}</span>
+                <span class="lesson-teacher">{{ lesson.roomNumber }}</span>
               </div>
             </div>
             <div class="session afternoon">
               <h4>Buổi chiều</h4>
               <div
                 class="lesson"
-                v-for="lesson in day.afternoon"
+                v-for="lesson in filterByDayAndSession(thu.value, 'Buổi chiều')"
                 :key="lesson.id"
               >
                 <span class="lesson-time">Tiết {{ lesson.period }}</span>
-                <span class="lesson-name">{{ lesson.subject }}</span>
-                <span class="lesson-teacher">{{ lesson.RoomNumber }}</span>
+                <span class="lesson-name">{{ lesson.subjectName }}</span>
+                <span class="lesson-teacher">{{ lesson.roomNumber }}</span>
               </div>
             </div>
           </div>
@@ -39,35 +39,56 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
 import menuTopUser from "@/components/USER/menuTopUser.vue";
 import navbarUser from "@/components/USER/navbarUser.vue";
+
 export default {
-  data() {
-    return {
-      schedule: [
-        {
-          name: "Thứ Hai",
-          morning: [
-            { id: 1, period: 1, subject: "Toán", RoomNumber: "Phong 10N3" },
-            { id: 2, period: 2, subject: "Văn", RoomNumber: "Phong 10N3" },
-            { id: 3, period: 3, subject: "Anh", RoomNumber: "Phong 10N3" },
-            { id: 4, period: 4, subject: "Lý", RoomNumber: "Phong 10N3" },
-            { id: 5, period: 5, subject: "Hóa", RoomNumber: "Phong 10N3" },
-          ],
-          afternoon: [
-            { id: 6, period: 1, subject: "Sinh", RoomNumber: "GV F" },
-            { id: 7, period: 2, subject: "Sử", RoomNumber: "GV G" },
-            { id: 8, period: 3, subject: "Địa", RoomNumber: "GV H" },
-            { id: 9, period: 4, subject: "GDCD", RoomNumber: "GV I" },
-            { id: 10, period: 5, subject: "Thể dục", RoomNumber: "GV J" },
-          ],
-        },
-      ],
-    };
-  },
   components: {
     menuTopUser,
     navbarUser,
+  },
+
+  data() {
+    return {
+      daysOfWeek: [
+        { value: "2", label: "Thứ Hai" },
+        { value: "3", label: "Thứ Ba" },
+        { value: "4", label: "Thứ Tư" },
+        { value: "5", label: "Thứ Năm" },
+        { value: "6", label: "Thứ Sáu" },
+        { value: "7", label: "Thứ Bảy" },
+      ],
+    };
+  },
+
+  computed: {
+    ...mapGetters(["teacherSchedule"]),
+  },
+
+  methods: {
+    ...mapActions(["GetScheduleByTeacherId"]),
+
+    filterByDayAndSession(dayOfWeek, session) {
+      if (!this.teacherSchedule) return [];
+      return this.teacherSchedule.filter(
+        (lesson) =>
+          lesson.dayOfWeek === dayOfWeek && lesson.timeSlot === session
+      );
+    },
+  },
+
+  async created() {
+    const teacherId = this.$store.getters.getUserID;
+    if (teacherId) {
+      try {
+        await this.GetScheduleByTeacherId(teacherId);
+      } catch (error) {
+        console.error("Lỗi khi lấy lịch dạy:", error);
+      }
+    } else {
+      console.error("Không tìm thấy ID giáo viên");
+    }
   },
 };
 </script>
@@ -124,5 +145,46 @@ export default {
   justify-content: space-between;
   padding: 5px;
   border-bottom: 1px solid #ddd;
+}
+.day-schedule {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+
+  .day-title {
+    color: #2c3e50;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+  }
+}
+
+.lesson {
+  margin: 8px 0;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  .lesson-time {
+    font-weight: bold;
+    color: #2c3e50;
+  }
+
+  .lesson-name {
+    color: #3498db;
+  }
+
+  .lesson-teacher {
+    color: #7f8c8d;
+  }
 }
 </style>

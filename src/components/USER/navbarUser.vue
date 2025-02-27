@@ -21,7 +21,7 @@
             </router-link>
           </li>
           <li>
-            <router-link to="/profile" class="nav-link">
+            <router-link to="/infoUser" class="nav-link">
               <i class="fas fa-user"></i>
               <span v-if="!isCollapsed">Hồ sơ cá nhân</span>
             </router-link>
@@ -118,8 +118,8 @@ export default {
   color: white;
 
   img {
-    width: 32px;
-    height: 32px;
+    width: 14vw;
+    height: 21vh;
     object-fit: contain;
   }
 

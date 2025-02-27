@@ -21,12 +21,9 @@
               <td>{{ topic.id }}</td>
               <td>{{ topic.title }}</td>
               <td>{{ topic.subject }}</td>
-              <td>{{ topic.classs }}</td>
-              <td>{{ topic.createdAt }}</td>
+              <td>{{ topic.classsub }}</td>
+              <td>{{ formatDate(topic.createdAt) }}</td>
               <td class="action-box">
-                <button class="btn btn-edit" @click="openEditModal(topic)">
-                  Sửa
-                </button>
                 <button class="btn btn-delete" @click="deleteTopic(topic.id)">
                   Xóa
                 </button>
@@ -72,7 +69,7 @@
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import Navbar from "@/components/navbar.vue";
 import ModalCreateExam from "@/components/modalExam/modalCreateExam.vue";
 import ModalEditExam from "@/components/modalExam/modalEditExam.vue";
@@ -116,6 +113,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["deleteExame"]),
     topics() {
       return this.$store.getters.allTopics; // Lấy danh sách đề từ Vuex
     },
@@ -152,8 +150,22 @@ export default {
       this.modalButtonText = "Sửa";
       this.showModal = true;
     },
-    deleteTopic(topicId) {
-      this.$store.dispatch("deleteTopic", topicId);
+    async deleteTopic(topicId) {
+      if (confirm("Bạn có chắc chắn muốn xóa đề này không?")) {
+        try {
+          const result = await this.deleteExame(topicId);
+          if (result.success) {
+            alert("Xóa đề thành công!");
+            // Cập nhật lại danh sách sau khi xóa
+            await this.$store.dispatch("getExam");
+          } else {
+            alert("Có lỗi xảy ra khi xóa đề!");
+          }
+        } catch (error) {
+          console.error("Lỗi khi xóa đề:", error);
+          alert("Có lỗi xảy ra khi xóa đề!");
+        }
+      }
     },
     async handleSubmitForm(topicData) {
       console.log("Dữ liệu đề:", topicData);

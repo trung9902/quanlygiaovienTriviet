@@ -4,7 +4,7 @@
     <div class="nav-header">
       <router-link to="/admin">
         <div class="logo">
-          <img src="@/assets/logo.png" alt="Logo" v-if="!isCollapsed" />
+          <img src="@/assets/TriDuc-logo.png" alt="Logo" v-if="!isCollapsed" />
           <span v-if="!isCollapsed">Admin Panel</span>
         </div>
       </router-link>
@@ -71,6 +71,12 @@
                     <span>Danh mục tin tức</span>
                   </router-link>
                 </li>
+                <li>
+                  <router-link to="/AdminComment">
+                    <i class="fas fa-comments"></i>
+                    <span>bình luận</span>
+                  </router-link>
+                </li>
               </ul>
             </transition>
           </li>
@@ -115,7 +121,7 @@ export default {
     handleLogout() {
       // Xử lý đăng xuất ở đây
 
-      this.$store.dispatch("logout");
+      this.$store.dispatch("logout", this.$router);
     },
   },
 };
@@ -156,8 +162,8 @@ export default {
   color: white;
 
   img {
-    width: 32px;
-    height: 32px;
+    width: 4vw;
+    height: 56px;
     object-fit: contain;
   }
 

@@ -15,6 +15,7 @@ import topicBankUser from "@/views/users/topicBankUser.vue";
 import automaticAssignment from "@/views/Admin/automaticAssignment.vue";
 import infoUser from "@/views/users/infoUser.vue";
 import lichGiangDay from "@/views/users/lichGiangDayUser.vue";
+import AdminComment from "@/views/Admin/AdminComment.vue";
 const routes = [
   {
     path: "/",
@@ -76,6 +77,11 @@ const routes = [
     name: "automaticAssignment",
     component: automaticAssignment,
   },
+  {
+    path: "/AdminComment",
+    name: "AdminComment",
+    component: AdminComment,
+  },
   //User
   {
     path: "/topicBank",
@@ -109,12 +115,16 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // Danh sách các trang công khai không cần đăng nhập
+  const publicPages = ["/", "/registed", "/admin/forgot-password"];
+  const isPublicPage = publicPages.includes(to.path);
+
   if (to.path === "/" && token && user && user.role === "admin") {
     next({ path: "/admin" });
   } else if (to.path === "/" && token && user && user.role === "teacher") {
     next({ path: "/Home" });
-  } else if (to.path !== "/" && !token) {
-    next({ path: "/" }); // Chuyển về trang login nếu chưa đăng nhập
+  } else if (!isPublicPage && !token) {
+    next({ path: "/" }); // Chuyển về trang login nếu chưa đăng nhập và không phải trang công khai
   } else {
     next();
   }

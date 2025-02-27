@@ -16,8 +16,8 @@
             <div class="profile-card profile-card--avatar">
               <div class="avatar-wrapper">
                 <img
+                  :src="`${baseURL}${userInfo.AnhHoSo}` || defaultAvatar"
                   class="profile-avatar"
-                  :src="userAvatar || defaultAvatar"
                   alt="Profile picture"
                 />
                 <div class="avatar-overlay">
@@ -37,16 +37,6 @@
                 {{ userInfo.HoTen || $store.getters.getUserName }}
               </h3>
               <p class="profile-id">{{ $store.getters.getUserId }}</p>
-              <div class="profile-stats">
-                <div class="stat-item">
-                  <span class="stat-value">{{ teachingHours }}</span>
-                  <span class="stat-label">Tiết dạy</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-value">{{ yearsOfExperience }}</span>
-                  <span class="stat-label">Năm kinh nghiệm</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -1047,7 +1037,8 @@ export default {
   },
   data() {
     return {
-      defaultAvatar: require("@/assets/logo.png"), // Thêm ảnh mặc định
+      baseURL: "https://localhost:7139", // Add baseURL
+      defaultAvatar: require("@/assets/TriDuc-logo.png"), // Thêm ảnh mặc định
       userInfo: {
         MaGiaoVien: null,
         HoTen: "",
@@ -1089,6 +1080,9 @@ export default {
   },
   computed: {
     ...mapGetters(["getUserID", "allTeachers"]),
+    userImager() {
+      return this.userInfo.AnhHoSo || this.defaultAvatar;
+    },
     teacherInfo() {
       const teachers = toRaw(this.allTeachers);
       console.log("All teachers:", teachers);
@@ -1110,11 +1104,19 @@ export default {
 
     async handleAvatarChange(event) {
       const file = event.target.files[0];
-      if (!file) return;
+      console.log("File:", file);
 
+      if (!file) return;
+      const teacherId = this.teacherInfo.maGiaoVien;
       const formData = new FormData();
-      formData.append("id", this.userInfo.MaGiaoVien);
-      formData.append("AnhHoSo", file);
+      formData.append("maGiaoVien", teacherId);
+      // formData.append("id", this.userInfo.MaGiaoVien);
+      formData.append("imageFile", file);
+      if (this.userInfo.Subject && Array.isArray(this.userInfo.Subject)) {
+        formData.append("Subject", JSON.stringify(this.userInfo.Subject));
+      } else {
+        formData.append("Subject", JSON.stringify([])); // Gửi mảng rỗng nếu không có
+      }
 
       try {
         await this.updateTeacher(formData);
@@ -1393,6 +1395,15 @@ export default {
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
       }
+    },
+    async cancelEditPersonal() {
+      this.isEditingPersonal = false;
+    },
+    async cancelEditAddress() {
+      this.isEditingAddress = false;
+    },
+    async cancelEditProfessional() {
+      this.isEditingProfessional = false;
     },
   },
 };
@@ -1690,5 +1701,9 @@ export default {
       }
     }
   }
+}
+.profile-avatar {
+  width: 100%;
+  height: 20vh;
 }
 </style>

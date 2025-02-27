@@ -2,7 +2,13 @@
   <div class="login-page">
     <!-- Left Section: Login Form -->
     <div class="login-page__form-container">
-      <div class="login-page__logo">V</div>
+      <div class="login-page__logo">
+        <img
+          src="@/assets/TriDuc-logo.png"
+          alt="Logo"
+          class="login-page__logo-image"
+        />
+      </div>
       <h1 class="login-page__title">Login</h1>
       <p class="login-page__subtitle">Log into your account</p>
 
@@ -86,6 +92,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.login-page__logo-image {
+  height: 20vh;
+}
 /* General Reset */
 * {
   margin: 0;

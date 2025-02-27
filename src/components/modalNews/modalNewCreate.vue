@@ -128,6 +128,7 @@ export default {
       const file = event.target.files[0]; // Lấy file đầu tiên từ input
       if (file) {
         this.newsForm.thumbnail = file; // Lưu file vào newsForm.thumbnail
+        console.log(this.newsForm.thumbnail);
 
         // Tạo URL tạm thời để xem trước ảnh
         const reader = new FileReader();

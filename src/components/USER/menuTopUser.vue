@@ -68,7 +68,7 @@ export default {
     },
     async logout() {
       try {
-        await this.$store.dispatch("logout");
+        await this.$store.dispatch("logout", this.$router);
         // Chuyển hướng về trang login sau khi đăng xuất thành công
       } catch (error) {
         console.error("Lỗi đăng xuất:", error);

@@ -160,7 +160,9 @@ export default {
       this.showModal = true;
     },
     deleteNews(newsId) {
-      this.$store.dispatch("deleteNews", newsId);
+      if (confirm("Bạn có chắc chắn muốn xóa tin tức này không?")) {
+        this.$store.dispatch("deleteNews", newsId);
+      }
     },
     async handleSubmitForm(newsData) {
       try {

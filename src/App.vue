@@ -1,7 +1,18 @@
 <template>
   <router-view />
 </template>
-
+<script>
+export default {
+  head: {
+    link: [
+      {
+        rel: "icon",
+        href: require("../public/img/icons/TriDuc-logo.png"),
+      },
+    ],
+  },
+};
+</script>
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

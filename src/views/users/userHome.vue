@@ -17,19 +17,19 @@
         <div class="feature-container">
           <h3 class="title">Chức năng</h3>
           <div class="feature-list">
-            <router-link to="/route1" class="feature-item">
+            <router-link to="/infoUser" class="feature-item">
               <div class="icon-wrapper">
                 <i class="fas fa-home"></i>
               </div>
               <span>hồ sơ cá nhân</span>
             </router-link>
-            <router-link to="/route2" class="feature-item">
+            <router-link to="/topicBankUser" class="feature-item">
               <div class="icon-wrapper">
                 <i class="fas fa-user"></i>
               </div>
               <span>ngân hàng đề</span>
             </router-link>
-            <router-link to="/route3" class="feature-item">
+            <router-link to="/lichGiangDay" class="feature-item">
               <div class="icon-wrapper">
                 <i class="fas fa-cog"></i>
               </div>
@@ -90,8 +90,11 @@
               ></textarea>
               <button @click="addComment">Gửi</button>
               <ul>
-                <li v-for="(comment, index) in comments" :key="index">
-                  {{ comment }}
+                <li
+                  v-for="(comment, index) in selectedNews.comments"
+                  :key="index"
+                >
+                  <strong>{{ comment.author }}:</strong> {{ comment.content }}
                 </li>
               </ul>
             </div>
@@ -101,11 +104,13 @@
     </div>
   </div>
 </template>
+
 <script>
 import { mapGetters, mapActions } from "vuex";
 import NavbarUser from "@/components/USER/navbarUser.vue";
 import menuTopUser from "@/components/USER/menuTopUser.vue";
 import { toRaw } from "vue";
+
 export default {
   name: "UserHome",
   data() {
@@ -113,34 +118,8 @@ export default {
       showModal: false,
       selectedNews: {},
       newComment: "",
-      comments: [],
       baseURL: "https://localhost:7139", // Add baseURL
       loading: false,
-      newsItems: [
-        {
-          title: "Thông báo lịch họp Khoa",
-          date: "15/05/2023",
-          content: "Cuộc họp Khoa sẽ được tổ chức vào ngày 20/05/2023...",
-        },
-        {
-          title: "Kế hoạch đào tạo mới",
-          date: "12/05/2023",
-          content: "Kế hoạch đào tạo học kỳ mới sẽ được cập nhật...",
-        },
-      ],
-      activities: [
-        {
-          title: "Hội thảo khoa học",
-          date: "18/05/2023",
-          description: "Hội thảo về phương pháp giảng dạy hiện đại...",
-        },
-        {
-          title: "Sinh hoạt chuyên môn",
-          date: "21/05/2023",
-          description: "Buổi sinh hoạt chuyên môn định kỳ tháng 5...",
-        },
-      ],
-      news: [],
     };
   },
   components: {
@@ -148,21 +127,38 @@ export default {
     menuTopUser,
   },
   computed: {
-    ...mapGetters(["allNews"]),
+    ...mapGetters(["allNews", "allComment"]),
   },
   methods: {
-    ...mapActions(["getNews"]),
-    openModal(news) {
+    ...mapActions(["getNews", "getCommentByNews", "addComment"]),
+    async openModal(news) {
       this.selectedNews = news;
       this.showModal = true;
+      await this.fetchComments(news.id);
     },
     closeModal() {
       this.showModal = false;
     },
-    addComment() {
+    async addComment() {
+      console.log("Adding comment:", this.allComment);
       if (this.newComment.trim()) {
-        this.comments.push(this.newComment.trim());
+        await this.$store.dispatch("addComment", {
+          newsId: this.selectedNews.id,
+          content: this.newComment.trim(),
+          author: this.$store.getters.getUserName, // Thay thế bằng tên tác giả thực tế nếu có
+        });
         this.newComment = "";
+        await this.fetchComments(this.selectedNews.id);
+      }
+    },
+    async fetchComments(newsId) {
+      console.log("Adding comment:", this.allComment(newsId));
+      try {
+        const comments = await this.$store.dispatch("getCommentByNews", newsId);
+        this.selectedNews.comments = comments;
+        this.selectedNews.comments = this.allComment(newsId);
+      } catch (error) {
+        console.error("Lỗi khi tải bình luận:", error);
       }
     },
     viewDetails(news) {
@@ -299,99 +295,7 @@ export default {
 .el-card:hover {
   transform: translateY(-5px);
 }
-// .newUser-box {
-//   display: flex;
-//   border-radius: 25px;
-//   width: -moz-fit-content;
-//   width: fit-content;
-//   padding: 5px;
-//   background-color: #dbd3ff;
-//   box-shadow: 0 0 10px rgb(0 0 0 / 10%);
-//   flex-direction: column;
 
-//   img.img-news {
-//     width: 24vw;
-//     padding: 5px;
-//     height: 200px;
-//     object-fit: cover;
-//   }
-//   .contentNews-box {
-//     text-align: left;
-//     padding: 5px;
-//   }
-// }
-// .news-activities {
-//   padding: 20px;
-//   display: grid;
-//   grid-template-columns: 1fr 1fr 1fr;
-//   gap: 15px;
-//   .section-title {
-//     color: #1a1a1a;
-//     font-size: 24px;
-//     margin-bottom: 25px;
-//     padding-bottom: 10px;
-//     border-bottom: 2px solid #1890ff;
-//   }
-
-//   .el-row {
-//     margin-bottom: 20px;
-//   }
-
-//   .news-card,
-//   .activity-card {
-//     margin-bottom: 20px;
-//     border-radius: 12px;
-//     transition: all 0.3s ease;
-//     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-//     overflow: hidden;
-
-//     &:hover {
-//       transform: translateY(-5px);
-//       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-//     }
-
-//     h3 {
-//       color: #2c3e50;
-//       font-size: 18px;
-//       font-weight: 600;
-//       margin-bottom: 10px;
-//     }
-
-//     .news-date,
-//     .activity-header {
-//       color: #666;
-//       font-size: 14px;
-//       margin-bottom: 12px;
-//       display: flex;
-//       align-items: center;
-//       gap: 5px;
-
-//       i {
-//         color: #1890ff;
-//       }
-//     }
-
-//     p {
-//       color: #5a5a5a;
-//       line-height: 1.6;
-//       margin: 8px 0;
-//     }
-//   }
-
-//   .el-card {
-//     border: none;
-//     background: #fff;
-//     padding: 20px;
-
-//     &:hover {
-//       background: #f8f9fa;
-//     }
-
-//     ::v-deep .el-card__body {
-//       padding: 20px;
-//     }
-//   }
-// }
 .news-activities {
   display: flex;
   flex-wrap: wrap;
@@ -485,66 +389,6 @@ export default {
     }
   }
 }
-// .modal {
-//   display: block;
-//   position: fixed;
-//   z-index: 1;
-//   left: 0;
-//   top: 0;
-//   width: 100%;
-//   height: 100%;
-//   overflow: auto;
-//   background-color: rgb(0, 0, 0);
-//   background-color: rgba(0, 0, 0, 0.4);
-// }
-
-// .modal-content {
-//   background-color: #fefefe;
-//   margin: 15% auto;
-//   padding: 20px;
-//   border: 1px solid #888;
-//   width: 80%;
-// }
-
-// .close {
-//   color: #aaa;
-//   float: right;
-//   font-size: 28px;
-//   font-weight: bold;
-// }
-
-// .close:hover,
-// .close:focus {
-//   color: black;
-//   text-decoration: none;
-//   cursor: pointer;
-// }
-
-// .comments-section {
-//   margin-top: 20px;
-// }
-
-// .comments-section textarea {
-//   width: 100%;
-//   height: 100px;
-//   margin-bottom: 10px;
-// }
-
-// .comments-section button {
-//   display: block;
-//   margin-bottom: 10px;
-// }
-
-// .comments-section ul {
-//   list-style-type: none;
-//   padding: 0;
-// }
-
-// .comments-section li {
-//   background: #f1f1f1;
-//   margin-bottom: 5px;
-//   padding: 10px;
-// }
 .modal {
   position: fixed;
   top: 0;
@@ -756,10 +600,6 @@ export default {
       margin-bottom: 5px;
       transition: background-color 0.3s ease;
       margin: 5px;
-
-      &:hover {
-        background: #d0e0ff;
-      }
     }
 
     img {

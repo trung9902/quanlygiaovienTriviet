@@ -101,14 +101,19 @@ export default {
       }
     },
 
-    logout({ commit }) {
+    logout({ commit }, router) {
       try {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         delete axios.defaults.headers.common["Authorization"]; // Xóa token khỏi header
         commit("setToken", "");
         commit("setLoginStatus", false);
-        window.location.href = "/";
+        if (router) {
+          router.push("/");
+        } else {
+          // Fallback nếu router không được cung cấp
+          window.location.href = "/";
+        }
       } catch (error) {
         console.error("Lỗi khi đăng xuất:", error);
         throw error;

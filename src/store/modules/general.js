@@ -8,12 +8,14 @@ export default {
     Classes: [],
     Subjects: [],
     schedule: [],
+    teacherSchedule: [],
   },
   getters: {
     allClass: (state) => state.Classes,
     allSubject: (state) => state.Subjects,
     allTeachers: (state) => state.Teachers,
     allSchedule: (state) => state.schedule,
+    teacherSchedule: (state) => state.teacherSchedule,
   },
   mutations: {
     setSchedule: (state, schedule) => (state.schedule = schedule),
@@ -24,6 +26,12 @@ export default {
     newTeacher: (state, Teacher) => state.Teachers.push(Teacher),
     newClass: (state, Class) => state.Classes.push(Class),
     newSubject: (state, Subject) => state.Subjects.push(Subject),
+    setTeacherSchedule: (state, teacherSchedule) => {
+      console.log("Dữ liệu trước khi cập nhật state:", state.teacherSchedule);
+      console.log("Dữ liệu nhận được:", teacherSchedule);
+      state.teacherSchedule = teacherSchedule;
+      console.log("Dữ liệu sau khi cập nhật state:", state.teacherSchedule);
+    },
   },
   actions: {
     async getClass({ commit }) {
@@ -213,11 +221,14 @@ export default {
     async GetScheduleByTeacherId({ commit }, id) {
       try {
         const response = await axios.get("/api/Schedule/teacher/" + id);
+        console.log("API Response:", response.data); // Kiểm tra dữ liệu trả về từ API
+
         if (response.data.success) {
-          commit("setSchedule", response.data.schedule);
+          commit("setTeacherSchedule", response.data.schedules);
+          console.log("Schedule Data:", response.data.schedule); // Log dữ liệu lưu vào Vuex
         }
       } catch (error) {
-        throw new Error("Không thể lấy thời khóa biểu");
+        console.error("Không thể lấy thời khóa biểu", error);
       }
     },
   },

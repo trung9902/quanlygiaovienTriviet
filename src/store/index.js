@@ -6,6 +6,7 @@ import general from "./modules/general";
 import News from "./modules/News";
 import topic from "./modules/topic";
 import createPersistedState from "vuex-persistedstate";
+import comment from "./modules/comment";
 
 export default createStore({
   modules: {
@@ -14,6 +15,7 @@ export default createStore({
     general,
     News,
     topic,
+    comment,
   },
   plugins: [createPersistedState()],
 });

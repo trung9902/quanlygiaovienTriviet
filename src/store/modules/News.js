@@ -4,6 +4,7 @@ export default {
   state: {
     News: [],
     categories: [],
+    comment: [],
   },
   mutations: {
     setCategories: (state, categories) => (state.categories = categories),
@@ -32,12 +33,50 @@ export default {
     setDeleteNews: (state, id) => {
       state.News = state.News.filter((News) => News.id !== id);
     },
+    getComment: (state, comment) => state.comment.push(comment),
+    addComment: (state, { newsId, comment }) => {
+      if (!state.comment) {
+        state.comment = {}; // Đảm bảo state.comment tồn tại
+      }
+      if (!state.comment[newsId]) {
+        state.comment[newsId] = [];
+      }
+      state.comment[newsId].push(comment);
+    },
   },
   getters: {
     allNews: (state) => state.News,
     allCategories: (state) => state.categories,
+    allComment: (state) => (newsId) => {
+      return state.comment[newsId] || [];
+    },
   },
   actions: {
+    async getCommentByNews({ commit }, id) {
+      try {
+        const response = await axios.get("/api/Comments/news/" + id);
+        console.log("API Response:", response.data); // Kiểm tra dữ liệu trả về từ API
+
+        if (response.data.success) {
+          commit("getComment", response.data.comment); // Lưu dữ liệu vào Vuex
+        }
+      } catch (error) {
+        console.error("Không thể lấy bình luận", error);
+      }
+    },
+    async addComment({ commit }, { newsId, content, author }) {
+      try {
+        const response = await axios.post("/api/Comments", {
+          content,
+          author,
+          newsId,
+          createdAt: new Date().toISOString(),
+        });
+        commit("addComment", { newsId, comment: response.data });
+      } catch (error) {
+        console.error("Không thể thêm bình luận", error);
+      }
+    },
     async getCategories({ commit }) {
       try {
         const res = await axios.get("/api/Category");

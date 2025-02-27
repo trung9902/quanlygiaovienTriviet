@@ -295,6 +295,8 @@ export default {
   padding: 35px;
   margin-top: 10vh;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  height: 80vh;
+  overflow: scroll;
 }
 
 .form-group {
