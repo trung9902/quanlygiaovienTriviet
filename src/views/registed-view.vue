@@ -3,7 +3,13 @@
     <loading-spinner v-if="isLoading" />
     <!-- Left Section: Register Form -->
     <div class="register-page__form-container">
-      <div class="register-page__logo">V</div>
+      <div class="login-page__logo">
+        <img
+          src="@/assets/TriDuc-logo.png"
+          alt="Logo"
+          class="login-page__logo-image"
+        />
+      </div>
       <h1 class="register-page__title">Register</h1>
       <p class="register-page__subtitle">Create your account</p>
 
@@ -207,6 +213,14 @@ export default {
 </script>
 
 <style scoped>
+.login-page__logo-image {
+  height: 12vh;
+}
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 .register-page {
   display: flex;
   height: 100vh;

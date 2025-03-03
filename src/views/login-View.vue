@@ -84,7 +84,7 @@ export default {
         }
       } catch (error) {
         console.error("Đăng nhập thất bại:", error);
-        alert("Đăng nhập thất bại");
+        alert("bạn đã nhập sai tài khoản hoặc mật khẩu");
       }
     },
   },

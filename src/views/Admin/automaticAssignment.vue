@@ -315,7 +315,7 @@ export default {
         const key = `${teacherId}-${day}-${period}`;
         return !teacherSchedule.has(key);
       };
-
+      // Hàm đánh dấu giáo viên bận trong tiết học
       const markTeacherBusy = (teacherId, day, period) => {
         const key = `${teacherId}-${day}-${period}`;
         teacherSchedule.set(key, true);
@@ -346,6 +346,7 @@ export default {
         });
 
         this.daysOfWeek.forEach((day) => {
+          // Khởi tạo số tiết học của mỗi môn trong ngày
           let dailyCount = {};
           let lastSubjectId = null;
           let availablePeriods = [...allPeriods];
@@ -365,6 +366,7 @@ export default {
               createdAt: currentDate,
               updatedAt: currentDate,
             });
+            // Bỏ tiết 1 khỏi danh sách tiết học còn trống
             availablePeriods = availablePeriods.filter((p) => p !== 1);
           }
 
@@ -390,8 +392,10 @@ export default {
 
           randomizedPeriods.forEach((period) => {
             if (day === "7" && period > 4) return; // Bỏ qua tiết chiều thứ 7
-
+            if (day === "2" && period === 1) return; // Bỏ qua tiết 1 thứ 2
+            // Xác định buổi học
             const timeSlot = period <= 4 ? "Buổi sáng" : "Buổi chiều";
+            //
 
             // Lọc các môn có thể xếp
             const availableSubjects = shuffleArray(classSubjects).filter(
@@ -406,6 +410,7 @@ export default {
                 if (!teacher || !isTeacherAvailable(teacher, day, period))
                   return false;
 
+                // Kiểm tra xem môn học có thể xếp vào tiết này không
                 if (highSubjects.includes(subjectName)) {
                   return (
                     countToday < 2 &&
@@ -431,7 +436,7 @@ export default {
 
                 // Đánh dấu giáo viên bận trong tiết này
                 markTeacherBusy(teacherId, day, period);
-
+                // Cập nhật lịch học
                 dailyCount[chosenSubject.id] =
                   (dailyCount[chosenSubject.id] || 0) + 1;
                 subjectLessons[chosenSubject.id]--;
@@ -532,6 +537,7 @@ export default {
   },
 };
 </script>
+
 <style lang="scss" scoped>
 .assignment-container {
   display: flex;

@@ -1213,10 +1213,10 @@ export default {
         const userId = this.getUserID;
 
         const formData = new FormData();
-        formData.append("maGiaoVien", teacherId); // Change from maGiaoVien to id
-        formData.append("diaChi", this.editedAddress.DiaChi); // Change from DiaChi to diaChi
-        formData.append("UserId", userId); // Thêm UserId
-        // Add required fields
+        formData.append("maGiaoVien", teacherId);
+        formData.append("diaChi", this.editedAddress.DiaChi);
+        formData.append("UserId", userId);
+
         if (this.userInfo.Subject && Array.isArray(this.userInfo.Subject)) {
           formData.append("Subject", JSON.stringify(this.userInfo.Subject));
         } else {
@@ -1224,32 +1224,27 @@ export default {
         }
 
         // Add required imageFile field
-        // Thêm ảnh hiện tại nếu có
         if (this.userInfo.AnhHoSo) {
           try {
+            // Lấy tên file từ đường dẫn
+            const originalFileName = this.userInfo.AnhHoSo.split("/").pop();
+
+            // Truyền thêm flag để backend biết giữ nguyên ảnh
+            formData.append("keepExistingImage", "true");
+
+            // Nếu bắt buộc phải gửi file, thì gửi blob với tên file gốc
             const response = await fetch(this.userInfo.AnhHoSo);
             const blob = await response.blob();
-            formData.append("imageFile", blob, "current-image.jpg");
+            formData.append("imageFile", blob, originalFileName);
           } catch (error) {
             console.warn("Không thể lấy ảnh hiện tại:", error);
-            // Thêm một file rỗng để tránh lỗi validation
             const emptyBlob = new Blob([""], { type: "image/jpeg" });
             formData.append("imageFile", emptyBlob, "empty.jpg");
           }
         } else {
-          // Thêm một file rỗng nếu không có ảnh
           const emptyBlob = new Blob([""], { type: "image/jpeg" });
           formData.append("imageFile", emptyBlob, "empty.jpg");
         }
-
-        // Log the data being sent
-        console.log("Sending data:", {
-          id: teacherId,
-          diaChi: this.editedAddress.DiaChi,
-          Subject: formData.get("Subject"),
-          UserId: userId,
-          hasImageFile: formData.get("imageFile") !== null,
-        });
 
         const response = await this.updateTeacher(formData);
 
@@ -1257,9 +1252,11 @@ export default {
           this.userInfo = {
             ...this.userInfo,
             DiaChi: this.editedAddress.DiaChi,
+            AnhHoSo: this.userInfo.AnhHoSo,
           };
           this.isEditingAddress = false;
           alert("Cập nhật địa chỉ thành công!");
+          await this.fetchUserData();
         }
       } catch (error) {
         console.error("Lỗi khi cập nhật địa chỉ:", error);
@@ -1269,7 +1266,6 @@ export default {
         alert("Có lỗi xảy ra khi cập nhật địa chỉ!");
       }
     },
-
     async saveProfessionalInfo() {
       try {
         const teacherId = this.teacherInfo.maGiaoVien;

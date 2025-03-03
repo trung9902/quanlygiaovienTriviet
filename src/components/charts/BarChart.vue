@@ -3,19 +3,13 @@
     <div class="chart-container">
       <Bar :data="computedBarChartData" :options="barChartOptions" />
     </div>
-    <div class="chart-container">
-      <Pie :data="pieChart1Data" :options="pieChartOptions" />
-    </div>
-    <div class="chart-container">
-      <Pie :data="pieChart2Data" :options="pieChartOptions" />
-    </div>
   </div>
 </template>
 
 <script>
 import { toRaw } from "vue";
 import { mapGetters, mapActions } from "vuex";
-import { Bar, Pie } from "vue-chartjs";
+import { Bar } from "vue-chartjs";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -40,7 +34,7 @@ ChartJS.register(
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Charts",
-  components: { Bar, Pie },
+  components: { Bar },
   data() {
     return {
       // Các biểu đồ không liên quan đến dữ liệu động có thể để trong data

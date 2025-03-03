@@ -136,15 +136,17 @@ export default {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+        console.log("Token:", localStorage.getItem("token"));
 
         // Nếu xóa thành công, commit mutation để cập nhật state
         if (response.status === 200) {
           commit("setDeleteUser", id);
-          alert("User deleted successfully.");
+          alert("xóa tài khoản thành công");
+          window.location.reload();
         }
       } catch (error) {
         console.error("Error deleting user:", error);
-        alert("Failed to delete user.");
+        alert("xóa tài khoản thất bại");
       }
     },
 

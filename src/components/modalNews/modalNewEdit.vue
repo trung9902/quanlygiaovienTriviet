@@ -179,7 +179,59 @@ export default {
       }
 
       try {
-        const result = await this.$store.dispatch("updateNews", this.newsForm);
+        const formData = new FormData();
+        formData.append("id", this.newsForm.id);
+        formData.append("title", this.newsForm.title);
+        formData.append("content", this.newsForm.content);
+        formData.append("author", this.newsForm.author);
+        formData.append("publishedDate", this.newsForm.publishedDate);
+        formData.append("status", this.newsForm.status);
+        formData.append("slug", this.generateSlug(this.newsForm.title));
+        formData.append("categoryId", this.newsForm.categoryId);
+
+        if (
+          this.newsForm.thumbnail &&
+          typeof this.newsForm.thumbnail !== "string"
+        ) {
+          formData.append("thumbnail", this.newsForm.thumbnail);
+        } else if (
+          this.newsForm.thumbnail &&
+          typeof this.newsForm.thumbnail === "string"
+        ) {
+          formData.append("thumbnailUrl", this.newsForm.thumbnail);
+        }
+
+        if (this.newsForm.DocumentPath) {
+          formData.append("DocumentPath", this.newsForm.DocumentPath);
+        }
+        if (
+          this.newsForm.thumbnail &&
+          typeof this.newsForm.thumbnail !== "string"
+        ) {
+          formData.append("image", this.newsForm.thumbnail);
+        } else if (
+          this.newsForm.thumbnail &&
+          typeof this.newsForm.thumbnail === "string"
+        ) {
+          try {
+            const response = await fetch(this.newsForm.thumbnail);
+            const blob = await response.blob();
+            formData.append("image", blob, "current-image.jpg");
+          } catch (error) {
+            console.warn("Không thể lấy ảnh hiện tại:", error);
+            const emptyBlob = new Blob([""], { type: "image/jpeg" });
+            formData.append("image", emptyBlob, "empty.jpg");
+          }
+        } else {
+          const emptyBlob = new Blob([""], { type: "image/jpeg" });
+          formData.append("image", emptyBlob, "empty.jpg");
+        }
+        // Log các giá trị trong FormData để kiểm tra
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ": " + pair[1]);
+        }
+
+        const result = await this.$store.dispatch("updateNews", formData);
         if (result.success) {
           alert("Cập nhật thành công");
           this.$emit("close");

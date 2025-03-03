@@ -148,12 +148,25 @@ export default {
         throw error;
       }
     },
-    async updateNews({ commit }, News) {
+    async updateNews({ commit }, formData) {
       try {
-        const res = await axios.patch(`/api/News/${News.id}`, News);
-        commit("updateNews", res.data);
+        // Lấy giá trị id từ FormData
+        const id = formData.get("id");
+
+        const response = await axios.patch(`/api/News/${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        commit("updateNews", response.data);
+        return { success: true, message: "Cập nhật thành công!" };
       } catch (error) {
-        console.error("Lỗi khi cập nhật tin tức:", error);
+        const message =
+          error.response && error.response.data
+            ? error.response.data.message
+            : "Cập nhật thất bại. Vui lòng thử lại!";
+        throw new Error(message);
       }
     },
 

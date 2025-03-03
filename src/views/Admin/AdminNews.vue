@@ -45,7 +45,6 @@
           :modalButtonText="modalButtonText"
           :news="editedNews"
           @close="closeModal"
-          @submit="handleSubmitForm"
         />
         <modalCreateNews
           :isVisible="showModalCreate"

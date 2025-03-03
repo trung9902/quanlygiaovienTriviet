@@ -14,9 +14,7 @@
               <th>Ngày Sinh</th>
               <th>SĐT</th>
               <th>Email</th>
-
               <th>Trạng Thái</th>
-              <th>Môn Học</th>
               <th>Hành Động</th>
             </tr>
           </thead>
@@ -40,16 +38,9 @@
               <td>{{ teacher.sdt || "Chưa cập nhật" }}</td>
               <td>{{ teacher.email || "Chưa cập nhật" }}</td>
               <td>{{ teacher.trangThai || "Chưa cập nhật" }}</td>
-              <td>{{ teacher.subject || "Chưa cập nhật" }}</td>
               <td class="action-box">
                 <button class="btn btn-Edit" @click="editUser(teacher)">
                   Sửa
-                </button>
-                <button
-                  class="btn btn-delete"
-                  @click="deleteUser(teacher.maGiaoVien)"
-                >
-                  Xóa
                 </button>
               </td>
             </tr>
